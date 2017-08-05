@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -16,7 +15,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
+
 
 // Asiakkaan lisäystä varten luotu luokka
 
@@ -31,6 +30,8 @@ public class addCustomer extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_customer);
+
+        // Hae viimeksi lisätyn asiakkaan id, jotta ei tule päällekkäisyyksiä
 
         mDatabase = FirebaseDatabase.getInstance().getReference().child("Customers");
         Query queryRef = mDatabase.orderByValue().limitToLast(3);
@@ -103,8 +104,8 @@ public class addCustomer extends AppCompatActivity {
                     customerPnum.setError("This field cannot be empty.");
                     return;
                 }
-             ;
-                    db.addCustomer(id, cName, cAdd, cPnum);
+                ;
+                db.addCustomer(id, cName, cAdd, cPnum);
 
                 customerName.setText("");
                 customerAddress.setText("");

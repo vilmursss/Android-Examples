@@ -3,18 +3,16 @@ package com.example.omistaja.crm;
 // Luokka jolla muutetaan asiakkaan tietoja
 
 import android.app.AlertDialog;
-import android.content.Context;
+
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.textservice.TextInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
 
 public class modifyCustomer extends AppCompatActivity {
 
@@ -37,8 +35,6 @@ public class modifyCustomer extends AppCompatActivity {
         EditText customerAddress = (EditText) findViewById(R.id.address);
         EditText customerPhoneNumber = (EditText) findViewById(R.id.pnum);
 
-
-
         hiddenId.setText(cId);
         customerName.setText(cName);
         customerAddress.setText(cAddress);
@@ -52,10 +48,8 @@ public class modifyCustomer extends AppCompatActivity {
 
     public void modifyBtn(View view) {
 
-
         EditText customerName = (EditText) findViewById(R.id.name);
         String cName = customerName.getText().toString();
-
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
@@ -142,7 +136,7 @@ public class modifyCustomer extends AppCompatActivity {
                 TextView hiddenId = (TextView) findViewById(R.id.hidden_id);
                 int hId = Integer.parseInt(hiddenId.getText().toString());
 
-               // db.deleteCustomer(hId);
+
                 dialog.dismiss();
 
                 AlertDialog alertDialog = new AlertDialog.Builder(modifyCustomer.this).create();
