@@ -60,6 +60,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public double lat;
     public double lon;
 
+    Boolean mapZoomer = true;
+
     private Boolean mRequestingLocationUpdates;
 
     @Override
@@ -72,8 +74,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mSettingsClient = LocationServices.getSettingsClient(this);
 
-        createLocationCallback();
         createLocationRequest();
+        createLocationCallback();
         buildLocationSettingsRequest();
         startUpdates();
 
@@ -110,10 +112,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 lon = mCurrentLocation.getLongitude();
                 lat = mCurrentLocation.getLatitude();
 
-                mMap.clear();
-                LatLng userPos = new LatLng(lat, lon);
-                mMap.addMarker(new MarkerOptions().position(userPos).title("You are in here: lat " + String.valueOf(lat) + " lon " + String.valueOf(lon)));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(userPos));
+                if (mapZoomer) {
+                    LatLng userPos = new LatLng(lat, lon);
+                    mMap.addMarker(new MarkerOptions().position(userPos).title("You are in here: lat " + String.valueOf(lat) + " lon " + String.valueOf(lon)));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPos, 15));
+                    mapZoomer = false;
+                } else {
+
+                    mMap.clear();
+                    LatLng userPos = new LatLng(lat, lon);
+                    mMap.addMarker(new MarkerOptions().position(userPos).title("You are in here: lat " + String.valueOf(lat) + " lon " + String.valueOf(lon)));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(userPos));
+                }
             }
         };
     }
@@ -134,10 +144,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             case REQUEST_CHECK_SETTINGS:
                 switch (resultCode) {
                     case Activity.RESULT_OK:
-                        Log.i(TAG, "User agreed to make required location settings changes.");
+                        Log.wtf(TAG, "User agreed to make required location settings changes.");
+                        startLocationUpdates();
                         break;
                     case Activity.RESULT_CANCELED:
-                        Log.i(TAG, "User chose not to make required location settings changes.");
+                        Log.wtf(TAG, "User chose not to make required location settings changes.");
                         mRequestingLocationUpdates = false;
                         break;
                 }
@@ -163,7 +174,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
                     @Override
                     public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                        Log.i(TAG, "All location settings are satisfied.");
+                        Log.wtf(TAG, "All location settings are satisfied.");
 
                         //noinspection MissingPermission
                         mFusedLocationClient.requestLocationUpdates(mLocationRequest,
@@ -176,19 +187,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         int statusCode = ((ApiException) e).getStatusCode();
                         switch (statusCode) {
                             case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                                Log.i(TAG, "Location settings are not satisfied. Attempting to upgrade " +
+                                Log.wtf(TAG, "Location settings are not satisfied. Attempting to upgrade " +
                                         "location settings ");
                                 try {
                                     ResolvableApiException rae = (ResolvableApiException) e;
                                     rae.startResolutionForResult(MapsActivity.this, REQUEST_CHECK_SETTINGS);
                                 } catch (IntentSender.SendIntentException sie) {
-                                    Log.i(TAG, "PendingIntent unable to execute request.");
+                                    Log.wtf(TAG, "PendingIntent unable to execute request.");
                                 }
                                 break;
                             case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
                                 String errorMessage = "Location settings are inadequate, and cannot be " +
                                         "fixed here. Fix in Settings.";
-                                Log.e(TAG, errorMessage);
+                                Log.wtf(TAG, errorMessage);
                                 Toast.makeText(MapsActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                                 mRequestingLocationUpdates = false;
                         }
@@ -201,7 +212,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void stopLocationUpdates() {
         if (!mRequestingLocationUpdates) {
-            Log.d(TAG, "stopLocationUpdates: updates never requested, no-op.");
+            Log.wtf(TAG, "stopLocationUpdates: updates never requested, no-op.");
             return;
         }
         mFusedLocationClient.removeLocationUpdates(mLocationCallback)
@@ -219,7 +230,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onResume() {
         super.onResume();
         if (mRequestingLocationUpdates && checkPermissions()) {
-            startLocationUpdates();
         } else if (!checkPermissions()) {
             requestPermissions();
         }
@@ -247,23 +257,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             ActivityCompat.requestPermissions(MapsActivity.this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_PERMISSIONS_REQUEST_CODE);
-        }
+        Log.wtf(TAG, "All location settings are satisfied.");
+
+    }
 
 // Lähetetään luvista tulos käyttäjälle
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        Log.i(TAG, "onRequestPermissionResult");
+        Log.wtf(TAG, "onRequestPermissionResult");
         if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
-                Log.i(TAG, "User interaction was cancelled.");
+                Log.wtf(TAG, "User interaction was cancelled.");
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (mRequestingLocationUpdates) {
-                    Log.i(TAG, "Permission granted, updates requested, starting location updates");
+                    Log.wtf(TAG, "Permission granted, updates requested, starting location updates");
                     startLocationUpdates();
                 }
             } else {
-                Log.i(TAG, "Permission denied");
+                Log.wtf(TAG, "Permission denied");
             }
         }
 
